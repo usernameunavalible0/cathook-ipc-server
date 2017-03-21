@@ -8,10 +8,8 @@
 #include "ipcb.hpp"
 #include "cathookipc.hpp"
 
-static bool is_server = false;
-
-cat_ipc::Peer<global_data_s, peer_data_s>& peer() {
-	static cat_ipc::Peer<global_data_s, peer_data_s> object("cathook_followbot_server", false, is_server);
+cat_ipc::Peer<server_data_s, user_data_s>& peer() {
+	static cat_ipc::Peer<server_data_s, user_data_s> object("cathook_followbot_server", false, true);
 	return object;
 }
 
@@ -51,22 +49,31 @@ void print_status() {
 	ESC_CUP(3, 12);
 	TEXT_BOLD;
 	printf("peer list: ");
+	int ypos = 13;
+	ESC_CUP(2, ypos);
+	printf("ID PID   STEAMID   NAME");
+	ypos++;
 	TEXT_NORMAL;
-	for (unsigned i = 0; i < peer().memory->peer_count; i++) {
+	// Zeroth peer is the server.
+	for (unsigned i = 1; i < cat_ipc::max_peers; i++) {
 		if (!peer().memory->peer_data[i].free) {
-			printf("%u (%d) ", i, peer().memory->peer_data[i].pid);
+			ESC_CUP(2, ypos);
+			printf("%-2u %-5d %-9ld %s", i, peer().memory->peer_data[i].pid, peer().memory->peer_user_data[i].friendid, peer().memory->peer_user_data[i].name);
+			ypos++;
 		}
 	}
-	ESC_CUP(1, 14);
+	ESC_CUP(1, ypos + 1);
 	fflush(stdout);
 }
 
 int main(int argc, char** argv) {
-	is_server = true;
 	unsigned long tick = 0;
+	peer().Connect();
+	peer().memory->global_data.magic_number = 0x0DEADCA7;
+	//printf("magic number offset: 0x%08x\n", (uintptr_t)&peer().memory->global_data.magic_number - (uintptr_t)peer().memory);
 	while (true) {
 		tick++;
-		if (!(tick % 100)) { // Sweep/Process once every 10 seconds
+		if (!(tick % 10)) { // Sweep/Process once every 10 seconds
 			peer().SweepDead();
 			peer().ProcessCommands();
 		}

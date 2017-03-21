@@ -8,12 +8,13 @@
 #ifndef CATHOOKIPC_HPP_
 #define CATHOOKIPC_HPP_
 
-struct global_data_s {
-	bool dummy;
+struct server_data_s {
+	unsigned magic_number;
 };
 
-struct peer_data_s {
-	bool dummy;
+struct user_data_s {
+	char name[32];
+	unsigned friendid;
 };
 
 #endif /* CATHOOKIPC_HPP_ */
