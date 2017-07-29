@@ -7,10 +7,8 @@ LDFLAGS=-m32
 LDLIBS=-lpthread -lrt
 SRC_DIR = src
 OUT_NAME = cathook-ipc-server
-TARGET_DIR = bin
-TARGET = $(TARGET_DIR)/$(OUT_NAME)
-SOURCES = $(shell find $(SRC_DIR) -name "*.cpp" -print)
-SOURCES += $(shell find $(SIMPLE_IPC_DIR) -name "*.cpp" -print)
+OUT_DIR = bin
+SOURCES = $(shell find $(SIMPLE_IPC_DIR) -name "*.cpp" -print)
 OBJECTS = $(SOURCES:.cpp=.o)
 DEPENDS = $(SOURCES:.cpp=.d)
 SRC_SUBDIRS=$(shell find $(SRC_DIR) -type d -print)
@@ -18,23 +16,19 @@ SRC_SUBDIRS=$(shell find $(SRC_DIR) -type d -print)
 .PHONY: clean directories
 
 all:
-	mkdir -p $(TARGET_DIR)
-	$(MAKE) $(TARGET)
+	mkdir -p $(OUT_DIR)
+	$(MAKE) bin/server
 	
 .cpp.o:
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 	
-%.d: %.cpp
-	$(CXX) -M $(CXXFLAGS) $< > $@
+$(OUT_DIR)/server: $(SRC_DIR)/server.o $(OBJECTS)
+	$(CXX) $(CXXFLAGS) $(LDFLAGS) $^ $(LDLIBS) -o $@
 
-$(TARGET): $(OBJECTS)
-	$(CXX) $(CXXFLAGS) $(LDFLAGS) $(OBJECTS) $(LDLIBS) -o $(TARGET)
+#$(TARGET): $(OBJECTS)
+#	$(CXX) $(CXXFLAGS) $(LDFLAGS) $(OBJECTS) $(LDLIBS) -o $(TARGET)
 
 clean:
 	find . -type f -name '*.o' -delete
 	find . -type f -name '*.d' -delete
 	rm -rf ./bin
-	
-ifneq ($(MAKECMDGOALS), clean)
--include $(DEPENDS)
-endif
