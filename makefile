@@ -18,11 +18,12 @@ SRC_SUBDIRS=$(shell find $(SRC_DIR) -type d -print)
 all:
 	mkdir -p $(OUT_DIR)
 	$(MAKE) bin/server
+	$(MAKE) bin/exec
 	
 .cpp.o:
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 	
-$(OUT_DIR)/server: $(SRC_DIR)/server.o $(OBJECTS)
+$(OUT_DIR)/%: $(SRC_DIR)/%.o $(OBJECTS)
 	$(CXX) $(CXXFLAGS) $(LDFLAGS) $^ $(LDLIBS) -o $@
 
 #$(TARGET): $(OBJECTS)

@@ -78,7 +78,7 @@ int main(int argc, char** argv) {
 			peer().ProcessCommands();
 		}
 		print_status();
-		usleep(100000);
+		sleep(2);
 	}
 	return 0;
 }
