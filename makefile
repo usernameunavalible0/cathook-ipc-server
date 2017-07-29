@@ -19,6 +19,8 @@ all:
 	mkdir -p $(OUT_DIR)
 	$(MAKE) bin/server
 	$(MAKE) bin/exec
+	$(MAKE) bin/undeadlock
+	$(MAKE) bin/exec_all
 	
 .cpp.o:
 	$(CXX) $(CXXFLAGS) -c $< -o $@
