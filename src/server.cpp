@@ -22,21 +22,45 @@ cat_ipc::Peer<server_data_s, user_data_s>& peer() {
 #define TEXT_BOLD ESC_SGR(1)
 #define TEXT_NORMAL ESC_SGR(0)
 
+const std::string classes[] = {
+	"Unknown", "Scout",
+	"Sniper", "Soldier",
+	"Demoman", "Medic",
+	"Heavy", "Pyro",
+	"Spy", "Engineer"
+};
+
+const std::string teams[] = {
+	"UNK", "SPEC", "RED", "BLU"
+};
+
+bool good_class(int clazz) {
+	return clazz > 0 && clazz < 10;
+}
+
+bool good_team(int team) {
+	return team >= 0 && team < 4;
+}
+
 void print_status() {
 	ESC_CUP(1, 1);
 	ESC_ED(2);
 	fflush(stdout);
 	ESC_CUP(2, 2);
 	TEXT_BOLD;
-	printf("cathook followbot server");
+	printf("cathook IPC server");
 	ESC_CUP(3, 4);
 	printf("connected: ");
-	TEXT_NORMAL; printf("%d", peer().memory->peer_count); TEXT_BOLD;
+	TEXT_NORMAL; printf("%d / %d", peer().memory->peer_count, cat_ipc::max_peers); TEXT_BOLD;
 	ESC_CUP(3, 5);
 	printf("command count: ");
 	TEXT_NORMAL; printf("%lu", peer().memory->command_count); TEXT_BOLD;
 	ESC_CUP(3, 6);
-	printf("command memory pool stats: ");
+	CatMemoryPool::pool_info_s info;
+	peer().pool->statistics(info);
+	printf("memory: ");
+	TEXT_NORMAL; printf("%.1f%% free\n", float(info.free) / float(info.free + info.alloc) * 100); TEXT_BOLD;
+	/*printf("command memory pool stats: ");
 	CatMemoryPool::pool_info_s info;
 	peer().pool->statistics(info);
 	ESC_CUP(4, 8); ESC_EL(2);  printf("total:     ");
@@ -46,20 +70,27 @@ void print_status() {
 	ESC_CUP(16, 8);  printf("%lu (%u blocks)", info.free + info.alloc, info.blkcnt);
 	ESC_CUP(16, 9); printf("%lu (%u blocks)", info.free, info.freeblk);
 	ESC_CUP(16, 10); printf("%lu (%u blocks)", info.alloc, info.allocblk);
-	ESC_CUP(3, 12);
-	TEXT_BOLD;
-	printf("peer list: ");
-	int ypos = 13;
+	*/
+	int ypos = 8;
 	ESC_CUP(2, ypos);
-	printf("ID PID   STEAMID   SERVER                NAME");
-	ypos++;
+	printf("%-2s %-5s %-9s %-21s %s\n", "ID", "PID", "SteamID", "Server IP", "Name");
+	printf("    %-5s %-9s %-4s   %-5s   %-5s  %s", "State", "Class", "Team", "Score", "Total", "Health");
+	ypos += 3;
 	TEXT_NORMAL;
 	// Zeroth peer is the server.
 	for (unsigned i = 1; i < cat_ipc::max_peers; i++) {
 		if (!peer().memory->peer_data[i].free) {
 			ESC_CUP(2, ypos);
-			printf("%-2u %-5d %-9ld %-21s %s", i, peer().memory->peer_data[i].pid, peer().memory->peer_user_data[i].friendid, peer().memory->peer_user_data[i].server, peer().memory->peer_user_data[i].name);
-			ypos++;
+			const auto& data = peer().memory->peer_user_data[i];
+			printf("%-2u %-5d %-9ld %-21s %s\n", i, peer().memory->peer_data[i].pid, data.friendid, data.server, data.name);
+			if (data.connected && data.good) {
+				printf("    %-5s %-9s %-4s   %-5d   %-5d   %d/%d\n",
+						data.life_state ? "Dead" : "Alive",
+						good_class(data.clazz) ? classes[data.clazz].c_str() : classes[0].c_str(),
+						good_team(data.team) ? teams[data.team].c_str() : teams[0].c_str(),
+						data.score, data.total_score, data.health, data.health_max);
+			}
+			ypos += 2;
 		}
 	}
 	ESC_CUP(1, ypos + 1);
