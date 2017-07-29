@@ -58,7 +58,7 @@ void print_status() {
 	for (unsigned i = 1; i < cat_ipc::max_peers; i++) {
 		if (!peer().memory->peer_data[i].free) {
 			ESC_CUP(2, ypos);
-			printf("%-2u %-5d %-9ld %-22s %s", i, peer().memory->peer_data[i].pid, peer().memory->peer_user_data[i].friendid, peer().memory->peer_user_data[i].server, peer().memory->peer_user_data[i].name);
+			printf("%-2u %-5d %-9ld %-21s %s", i, peer().memory->peer_data[i].pid, peer().memory->peer_user_data[i].friendid, peer().memory->peer_user_data[i].server, peer().memory->peer_user_data[i].name);
 			ypos++;
 		}
 	}
