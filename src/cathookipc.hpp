@@ -8,6 +8,8 @@
 #ifndef CATHOOKIPC_HPP_
 #define CATHOOKIPC_HPP_
 
+#include <time.h>
+
 struct server_data_s {
 	unsigned magic_number;
 };
@@ -26,6 +28,7 @@ struct user_data_s {
 	int score;
 	int last_score;
 	int total_score;
+	time_t heartbeat;
 };
 
 #endif /* CATHOOKIPC_HPP_ */

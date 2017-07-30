@@ -74,7 +74,7 @@ void print_status() {
 	int ypos = 8;
 	ESC_CUP(2, ypos);
 	printf("%-2s %-5s %-9s %-21s %s\n", "ID", "PID", "SteamID", "Server IP", "Name");
-	printf("    %-5s %-9s %-4s   %-5s   %-5s  %s", "State", "Class", "Team", "Score", "Total", "Health");
+	printf("    %-5s %-9s %-4s   %-5s   %-5s  %-9s %s", "State", "Class", "Team", "Score", "Total", "Health", "Heartbeat");
 	ypos += 3;
 	TEXT_NORMAL;
 	// Zeroth peer is the server.
@@ -84,11 +84,15 @@ void print_status() {
 			const auto& data = peer().memory->peer_user_data[i];
 			printf("%-2u %-5d %-9ld %-21s %s\n", i, peer().memory->peer_data[i].pid, data.friendid, data.server, data.name);
 			if (data.connected && data.good) {
-				printf("    %-5s %-9s %-4s   %-5d   %-5d   %d/%d\n",
+				printf("    %-5s %-9s %-4s   %-5d   %-5d   %-4d/%-4d %u\n",
 						data.life_state ? "Dead" : "Alive",
 						good_class(data.clazz) ? classes[data.clazz].c_str() : classes[0].c_str(),
 						good_team(data.team) ? teams[data.team].c_str() : teams[0].c_str(),
-						data.score, data.total_score, data.health, data.health_max);
+						data.score, data.total_score, data.health, data.health_max,
+						time(nullptr) - data.heartbeat);
+			} else {
+				printf("    %-5s %-9s %-4s   %-5s   %-5d   %-9s %u\n",
+						"N/A", "N/A", "N/A", "N/A", data.total_score, "N/A", time(nullptr) - data.heartbeat);
 			}
 			ypos += 2;
 		}
