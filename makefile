@@ -8,28 +8,28 @@ LDLIBS=-lpthread -lrt
 SRC_DIR = src
 OUT_NAME = cathook-ipc-server
 OUT_DIR = bin
-SOURCES = $(shell find $(SIMPLE_IPC_DIR) -name "*.cpp" -print)
-OBJECTS = $(SOURCES:.cpp=.o)
+SOURCES = $(shell find $(SRC_DIR) -name "*.cpp" -print)
+SOURCES += $(shell find $(SIMPLE_IPC_DIR) -name "*.cpp" -print)
 DEPENDS = $(SOURCES:.cpp=.d)
-SRC_SUBDIRS=$(shell find $(SRC_DIR) -type d -print)
+TARGETS=server exec undeadlock exec_all console
+
+SOURCES := $(filter-out $(patsubst %,src/%.cpp,$(TARGETS)),$(SOURCES))
+
+OBJECTS = $(SOURCES:.cpp=.o)
+
+$(info $(SOURCES))
 
 .PHONY: clean directories
 
 all:
 	mkdir -p $(OUT_DIR)
-	$(MAKE) bin/server
-	$(MAKE) bin/exec
-	$(MAKE) bin/undeadlock
-	$(MAKE) bin/exec_all
-	
+	$(MAKE) $(addprefix bin/,$(TARGETS))
+
 .cpp.o:
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 	
 $(OUT_DIR)/%: $(SRC_DIR)/%.o $(OBJECTS)
 	$(CXX) $(CXXFLAGS) $(LDFLAGS) $^ $(LDLIBS) -o $@
-
-#$(TARGET): $(OBJECTS)
-#	$(CXX) $(CXXFLAGS) $(LDFLAGS) $(OBJECTS) $(LDLIBS) -o $(TARGET)
 
 clean:
 	find . -type f -name '*.o' -delete
