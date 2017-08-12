@@ -11,19 +11,6 @@
 #include <string>
 #include <stdio.h>
 
-/*
- *
-CatCommand exec_all("ipc_exec_all", "Execute command (on every peer)", [](const CCommand& args) {
-	std::string command = args.ArgS();
-	ReplaceString(command, " && ", " ; ");
-	if (command.length() >= 63) {
-		peer->SendMessage(0, 0, ipc::commands::execute_client_cmd_long, command.c_str(), command.length() + 1);
-	} else {
-		peer->SendMessage(command.c_str(), 0, ipc::commands::execute_client_cmd, 0, 0);
-	}
-});
- */
-
 void ReplaceString(std::string& input, const std::string& what, const std::string& with_what) {
 	size_t index;
 	index = input.find(what);
