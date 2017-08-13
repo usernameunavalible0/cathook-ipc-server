@@ -12,6 +12,7 @@ SOURCES = $(shell find $(SRC_DIR) -name "*.cpp" -print)
 SOURCES += $(shell find $(SIMPLE_IPC_DIR) -name "*.cpp" -print)
 DEPENDS = $(SOURCES:.cpp=.d)
 TARGETS=server exec undeadlock exec_all console
+INSTALL_DIR = /opt/cathook-ipc-server
 
 SOURCES := $(filter-out $(patsubst %,src/%.cpp,$(TARGETS)),$(SOURCES))
 
@@ -24,6 +25,10 @@ $(info $(SOURCES))
 all:
 	mkdir -p $(OUT_DIR)
 	$(MAKE) $(addprefix bin/,$(TARGETS))
+
+install:
+	sudo mkdir -p $(INSTALL_DIR)
+	sudo cp -R $(OUT_DIR) $(INSTALL_DIR)
 
 .cpp.o:
 	$(CXX) $(CXXFLAGS) -c $< -o $@

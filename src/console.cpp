@@ -85,6 +85,26 @@ json exec(const json& args) {
 	if (not peer or not peer->connected) {
 		throw std::runtime_error("not connected to ipc server");
 	}
+	if (not has_key(args, "target")) {
+		throw std::runtime_error("undefined pid");
+	}
+	if (not has_key(args, "cmd")) {
+		throw std::runtime_error("undefined command");
+	}
+	unsigned uid = args["target"].get<unsigned>();
+	if (uid < 0 || uid >= cat_ipc::max_peers) {
+		throw std::out_of_range("peer out of range");
+	}
+	if (peer->IsPeerDead(uid)) {
+		throw std::runtime_error("peer is not connected");
+	}
+	std::string cmd = args["cmd"];
+	ReplaceString(cmd, " && ", " ; ");
+	if (cmd.length() >= 63) {
+		peer->SendMessage(0, (1 << uid), ipc_commands::execute_client_cmd_long, cmd.c_str(), cmd.length() + 1);
+	} else {
+		peer->SendMessage(cmd.c_str(), (1 << uid), ipc_commands::execute_client_cmd, 0, 0);
+	}
 	json result {};
 	result["success"] = true;
 	return result;
@@ -93,6 +113,16 @@ json exec(const json& args) {
 json exec_all(const json& args) {
 	if (not peer or not peer->connected) {
 		throw std::runtime_error("not connected to ipc server");
+	}
+	if (not has_key(args, "cmd")) {
+		throw std::runtime_error("undefined command");
+	}
+	std::string cmd = args["cmd"];
+	ReplaceString(cmd, " && ", " ; ");
+	if (cmd.length() >= 63) {
+		peer->SendMessage(0, 0, ipc_commands::execute_client_cmd_long, cmd.c_str(), cmd.length() + 1);
+	} else {
+		peer->SendMessage(cmd.c_str(), 0, ipc_commands::execute_client_cmd, 0, 0);
 	}
 	json result {};
 	result["success"] = true;
