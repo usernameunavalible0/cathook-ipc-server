@@ -273,7 +273,7 @@ int main(int argc, const char** argv) {
 	commands["disconnect"] = &cmd::disconnect;
 	commands["squery"] = &cmd::squery;
 
-	std::cout << json { { "init", time(nullptr) } } << std::endl;
+	std::cout << json { { "init", time(nullptr) } } << "\n";
 
 	while (true) {
 		std::string input;
@@ -284,16 +284,16 @@ int main(int argc, const char** argv) {
 				throw std::runtime_error("empty command");
 			}
 			if (args["command"] == "exit" or args["command"] == "quit") {
-				std::cout << json { { "exit", time(nullptr) } } << std::endl;
+				std::cout << json { { "exit", time(nullptr) } } << "\n";
 				break;
 			}
 			if (commands.find(args["command"]) == commands.end()) {
 				throw std::runtime_error("command not found");
 			} else {
-				std::cout << commands[args["command"]](args) << std::endl;
+				std::cout << commands[args["command"]](args) << "\n";
 			}
 		} catch (std::exception& ex) {
-			std::cout << json { { "error", std::string(ex.what()) } } << std::endl;
+			std::cout << json { { "error", std::string(ex.what()) } } << "\n";
 		}
 	}
 }
