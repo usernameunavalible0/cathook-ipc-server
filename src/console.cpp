@@ -105,9 +105,7 @@ json exec(const json& args) {
 	} else {
 		peer->SendMessage(cmd.c_str(), (1 << uid), ipc_commands::execute_client_cmd, 0, 0);
 	}
-	json result {};
-	result["success"] = true;
-	return result;
+	return json {};
 }
 
 json exec_all(const json& args) {
@@ -124,16 +122,14 @@ json exec_all(const json& args) {
 	} else {
 		peer->SendMessage(cmd.c_str(), 0, ipc_commands::execute_client_cmd, 0, 0);
 	}
-	json result {};
-	result["success"] = true;
-	return result;
+	return json {};
 }
 
 json query(const json& args) {
 	if (not peer or not peer->connected) {
 		throw std::runtime_error("not connected to ipc server");
 	}
-	json result { { "data", json {} } };
+	json result {};
 
 	bool skipEmpty = (has_key(args, "skipEmpty") and args["skipEmpty"].get<bool>());
 
@@ -143,17 +139,16 @@ json query(const json& args) {
 			if (skipEmpty and peer->IsPeerDead(uid)) {
 				continue;
 			}
-			result["data"][i.get<std::string>()] = query_peer(uid);
+			result[i.get<std::string>()] = query_peer(uid);
 		}
 	} else {
 		for (unsigned i = 0; i < cat_ipc::max_peers; i++) {
 			if (skipEmpty and peer->IsPeerDead(i)) {
 				continue;
 			}
-			result["data"][std::to_string(i)] = query_peer(i);
+			result[std::to_string(i)] = query_peer(i);
 		}
 	}
-	result["success"] = true;
 	return result;
 }
 
@@ -162,11 +157,10 @@ json squery(const json& args) {
 	if (not peer or not peer->connected) {
 		throw std::runtime_error("not connected to ipc server");
 	}
-	json result { { "data", json::object() } };
+	json result {};
 	const auto& mem = peer->memory;
-	result["data"]["count"] = mem->peer_count;
-	result["data"]["command_count"] = mem->command_count;
-	result["success"] = true;
+	result["count"] = mem->peer_count;
+	result["command_count"] = mem->command_count;
 	return result;
 }
 
@@ -188,14 +182,11 @@ json kill(const json& args) {
 		throw std::runtime_error("already dead");
 	}
 	::kill(pid_t(peer->memory->peer_data[uid].pid), SIGKILL);
-	json result {};
-	result["success"] = true;
-	return result;
+	return json {};
 }
 
 json echo(const json& args) {
 	json result {};
-	result["success"] = true;
 	result["args"] = args;
 	return result;
 }
@@ -211,9 +202,7 @@ json connect(const json& args) {
 		peer = nullptr;
 		throw ex;
 	}
-	return json {
-		{ "success", true }
-	};
+	return json {};
 }
 
 json disconnect(const json& args) {
@@ -222,9 +211,7 @@ json disconnect(const json& args) {
 	}
 	delete peer;
 	peer = nullptr;
-	return json {
-		{ "success", true }
-	};
+	return json {};
 }
 
 }
@@ -276,12 +263,16 @@ int main(int argc, const char** argv) {
 	std::cout << json { { "init", time(nullptr) } } << "\n";
 
 	while (true) {
-		std::string input;
+		std::string input { "" };
+		std::string cmdid { "undefined" };
 		std::getline(std::cin, input);
 		try {
 			auto args = json::parse(input);
 			if (not has_key(args, "command")) {
 				throw std::runtime_error("empty command");
+			}
+			if (has_key(args, "cmdid")) {
+				cmdid = args["cmdid"];
 			}
 			if (args["command"] == "exit" or args["command"] == "quit") {
 				std::cout << json { { "exit", time(nullptr) } } << "\n";
@@ -290,10 +281,10 @@ int main(int argc, const char** argv) {
 			if (commands.find(args["command"]) == commands.end()) {
 				throw std::runtime_error("command not found");
 			} else {
-				std::cout << commands[args["command"]](args) << "\n";
+				std::cout << json { { "status", "success" }, { "cmdid", cmdid }, { "result", commands[args["command"]](args) } } << "\n";
 			}
 		} catch (std::exception& ex) {
-			std::cout << json { { "error", std::string(ex.what()) } } << "\n";
+			std::cout << json { { "status", "error" }, { "cmdid", cmdid }, { "error", std::string(ex.what()) } } << "\n";
 		}
 	}
 }
