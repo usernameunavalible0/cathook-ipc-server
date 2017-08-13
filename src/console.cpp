@@ -24,9 +24,12 @@
 using json = nlohmann::json;
 using peer_t = cat_ipc::Peer<server_data_s, user_data_s>;
 
-
-std::unordered_map<std::string, std::function<json(const std::vector<std::string>&)>> commands {};
+std::unordered_map<std::string, std::function<json(const json&)>> commands {};
 peer_t* peer { nullptr };
+
+bool has_key(const json& o, const std::string& key) {
+	return o.find(key) != o.end();
+}
 
 void ReplaceString(std::string& input, const std::string& what, const std::string& with_what) {
 	size_t index;
@@ -78,7 +81,7 @@ json query_peer(unsigned id) {
 
 namespace cmd {
 
-json exec(const std::vector<std::string>& args) {
+json exec(const json& args) {
 	if (not peer or not peer->connected) {
 		throw std::runtime_error("not connected to ipc server");
 	}
@@ -87,7 +90,7 @@ json exec(const std::vector<std::string>& args) {
 	return result;
 }
 
-json exec_all(const std::vector<std::string>& args) {
+json exec_all(const json& args) {
 	if (not peer or not peer->connected) {
 		throw std::runtime_error("not connected to ipc server");
 	}
@@ -96,19 +99,28 @@ json exec_all(const std::vector<std::string>& args) {
 	return result;
 }
 
-json query(const std::vector<std::string>& args) {
+json query(const json& args) {
 	if (not peer or not peer->connected) {
 		throw std::runtime_error("not connected to ipc server");
 	}
 	json result { { "data", json {} } };
-	if (args.size() > 1) {
-		for (int i = 1; i < args.size(); i++) {
-			unsigned uid = std::stoul(args[1]);
-			result[args[1]] = query_peer(uid);
+
+	bool skipEmpty = (has_key(args, "skipEmpty") and args["skipEmpty"].get<bool>());
+
+	if (has_key(args, "ids")) {
+		for (const auto& i : args["ids"]) {
+			unsigned uid = i;
+			if (skipEmpty and peer->IsPeerDead(uid)) {
+				continue;
+			}
+			result["data"][i.get<std::string>()] = query_peer(uid);
 		}
 	} else {
 		for (unsigned i = 0; i < cat_ipc::max_peers; i++) {
-			result[std::to_string(i)] = query_peer(i);
+			if (skipEmpty and peer->IsPeerDead(i)) {
+				continue;
+			}
+			result["data"][std::to_string(i)] = query_peer(i);
 		}
 	}
 	result["success"] = true;
@@ -116,7 +128,7 @@ json query(const std::vector<std::string>& args) {
 }
 
 // Server Query
-json squery(const std::vector<std::string>& args) {
+json squery(const json& args) {
 	if (not peer or not peer->connected) {
 		throw std::runtime_error("not connected to ipc server");
 	}
@@ -128,14 +140,17 @@ json squery(const std::vector<std::string>& args) {
 	return result;
 }
 
-json kill(const std::vector<std::string>& args) {
+json kill(const json& args) {
 	if (getuid() != 0) {
 		throw std::runtime_error("kill can only be used as root");
 	}
 	if (not peer or not peer->connected) {
 		throw std::runtime_error("not connected to ipc server");
 	}
-	int uid = std::stoi(args[1]);
+	if (not has_key(args, "pid")) {
+		throw std::runtime_error("undefined pid");
+	}
+	pid_t uid = args["pid"].get<pid_t>();
 	if (uid < 0 || uid >= cat_ipc::max_peers) {
 		throw std::out_of_range("peer out of range");
 	}
@@ -148,40 +163,35 @@ json kill(const std::vector<std::string>& args) {
 	return result;
 }
 
-json echo(const std::vector<std::string>& args) {
+json echo(const json& args) {
 	json result {};
 	result["success"] = true;
-	result["args"] = json::array();
-	for (const auto& a : args) {
-		result["args"].push_back(a);
-	}
+	result["args"] = args;
 	return result;
 }
 
-json connect(const std::vector<std::string>& args) {
+json connect(const json& args) {
 	if (peer) {
 		throw std::runtime_error("already connected");
 	}
-	peer = new peer_t(args.size() > 1 ? args[1] : "cathook_followbot_server", false, false, true);
-	peer->Connect();
+	try {
+		peer = new peer_t(has_key(args, "server") ? args["server"].get<std::string>() : "cathook_followbot_server", false, false, true);
+		peer->Connect();
+	} catch (std::exception& ex) {
+		peer = nullptr;
+		throw ex;
+	}
 	return json {
 		{ "success", true }
 	};
 }
 
-json disconnect(const std::vector<std::string>& args) {
+json disconnect(const json& args) {
 	if (not peer or not peer->connected) {
 		throw std::runtime_error("not connected to ipc server");
 	}
 	delete peer;
 	peer = nullptr;
-	return json {
-		{ "success", true }
-	};
-}
-
-// Does literally nothing but emit success
-json test(const std::vector<std::string>& args) {
 	return json {
 		{ "success", true }
 	};
@@ -228,7 +238,6 @@ int main(int argc, const char** argv) {
 	commands["exec_all"] = &cmd::exec_all;
 	commands["query"] = &cmd::query;
 	commands["kill"] = &cmd::kill;
-	commands["test"] = &cmd::test;
 	commands["echo"] = &cmd::echo;
 	commands["connect"] = &cmd::connect;
 	commands["disconnect"] = &cmd::disconnect;
@@ -240,18 +249,18 @@ int main(int argc, const char** argv) {
 		std::string input;
 		std::getline(std::cin, input);
 		try {
-			auto args = split(input);
-			if (args.empty()) {
+			auto args = json::parse(input);
+			if (not has_key(args, "command")) {
 				throw std::runtime_error("empty command");
 			}
-			if (args[0] == "exit" or args[0] == "quit") {
+			if (args["command"] == "exit" or args["command"] == "quit") {
 				std::cout << json { { "exit", time(nullptr) } } << std::endl;
 				break;
 			}
-			if (commands.find(args[0]) == commands.end()) {
+			if (commands.find(args["command"]) == commands.end()) {
 				throw std::runtime_error("command not found");
 			} else {
-				std::cout << commands[args[0]](args) << std::endl;
+				std::cout << commands[args["command"]](args) << std::endl;
 			}
 		} catch (std::exception& ex) {
 			std::cout << json { { "error", std::string(ex.what()) } } << std::endl;
