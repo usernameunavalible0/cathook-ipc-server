@@ -78,7 +78,7 @@ void print_status() {
 	ypos += 3;
 	TEXT_NORMAL;
 	// Zeroth peer is the server.
-	for (unsigned i = 1; i < cat_ipc::max_peers; i++) {
+	for (unsigned i = 0; i < cat_ipc::max_peers; i++) {
 		if (!peer().memory->peer_data[i].free) {
 			ESC_CUP(2, ypos);
 			const auto& data = peer().memory->peer_user_data[i];
