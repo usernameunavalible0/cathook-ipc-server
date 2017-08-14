@@ -9,7 +9,7 @@
 #include "cathookipc.hpp"
 
 cat_ipc::Peer<server_data_s, user_data_s>& peer() {
-	static cat_ipc::Peer<server_data_s, user_data_s> object("cathook_followbot_server", false, true);
+	static cat_ipc::Peer<server_data_s, user_data_s> object("cathook_followbot_server", false, true, true);
 	return object;
 }
 
