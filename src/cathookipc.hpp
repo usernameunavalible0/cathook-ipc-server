@@ -29,6 +29,12 @@ struct user_data_s {
 	int last_score;
 	int total_score;
 	time_t heartbeat;
+	float x;
+	float y;
+	float z;
+	time_t ts_injected;
+	time_t ts_connected;
+	time_t ts_disconnected;
 };
 
 namespace ipc_commands {

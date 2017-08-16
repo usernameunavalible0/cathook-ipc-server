@@ -6,13 +6,12 @@ CXXFLAGS += $(INCLUDES)
 LDFLAGS=-m32
 LDLIBS=-lpthread -lrt
 SRC_DIR = src
-OUT_NAME = cathook-ipc-server
 OUT_DIR = bin
 SOURCES = $(shell find $(SRC_DIR) -name "*.cpp" -print)
 SOURCES += $(shell find $(SIMPLE_IPC_DIR) -name "*.cpp" -print)
 DEPENDS = $(SOURCES:.cpp=.d)
 TARGETS=server exec undeadlock exec_all console
-INSTALL_DIR = /opt/cathook-ipc-server
+INSTALL_DIR = /opt/cathook/ipc
 
 SOURCES := $(filter-out $(patsubst %,src/%.cpp,$(TARGETS)),$(SOURCES))
 

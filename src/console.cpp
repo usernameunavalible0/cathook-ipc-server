@@ -75,6 +75,12 @@ json query_peer(unsigned id) {
 	result["server"] = udata.server;
 	result["team"] = udata.team;
 	result["total_score"] = udata.total_score;
+	result["x"] = udata.x;
+	result["y"] = udata.y;
+	result["z"] = udata.z;
+	result["ts_injected"] = udata.ts_injected;
+	result["ts_connected"] = udata.ts_connected;
+	result["ts_disconnected"] = udata.ts_disconnected;
 
 	return result;
 }
