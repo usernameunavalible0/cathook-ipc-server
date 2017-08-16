@@ -111,6 +111,7 @@ int main(int argc, char** argv) {
 			silent = true;
 		}
 	}
+	printf("cathook IPC server\n");
 	while (true) {
 		tick++;
 		if (!(tick % 10)) { // Sweep/Process once every 10 seconds
