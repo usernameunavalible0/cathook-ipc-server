@@ -81,6 +81,9 @@ json query_peer(unsigned id) {
 	result["ts_injected"] = udata.ts_injected;
 	result["ts_connected"] = udata.ts_connected;
 	result["ts_disconnected"] = udata.ts_disconnected;
+	result["hits"] = udata.hits;
+	result["shots"] = udata.shots;
+	result["headshots"] = udata.headshots;
 
 	return result;
 }
