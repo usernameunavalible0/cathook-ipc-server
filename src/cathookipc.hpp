@@ -35,6 +35,9 @@ struct user_data_s {
 	time_t ts_injected;
 	time_t ts_connected;
 	time_t ts_disconnected;
+	int shots;
+	int hits;
+	int headshots;
 };
 
 namespace ipc_commands {
