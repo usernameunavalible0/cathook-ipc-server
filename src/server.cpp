@@ -9,7 +9,7 @@
 #include "cathookipc.hpp"
 
 cat_ipc::Peer<server_data_s, user_data_s>& peer() {
-	static cat_ipc::Peer<server_data_s, user_data_s> object("cathook_followbot_server", false, true);
+	static cat_ipc::Peer<server_data_s, user_data_s> object("cathook_followbot_server", false, true, true);
 	return object;
 }
 
@@ -78,7 +78,7 @@ void print_status() {
 	ypos += 3;
 	TEXT_NORMAL;
 	// Zeroth peer is the server.
-	for (unsigned i = 1; i < cat_ipc::max_peers; i++) {
+	for (unsigned i = 0; i < cat_ipc::max_peers; i++) {
 		if (!peer().memory->peer_data[i].free) {
 			ESC_CUP(2, ypos);
 			const auto& data = peer().memory->peer_user_data[i];
@@ -105,14 +105,20 @@ int main(int argc, char** argv) {
 	unsigned long tick = 0;
 	peer().Connect();
 	peer().memory->global_data.magic_number = 0x0DEADCA7;
-	//printf("magic number offset: 0x%08x\n", (uintptr_t)&peer().memory->global_data.magic_number - (uintptr_t)peer().memory);
+	bool silent = false;
+	for (int i = 1; i < argc; i++) {
+		if (!strcmp(argv[i], "-s")) {
+			silent = true;
+		}
+	}
 	while (true) {
 		tick++;
 		if (!(tick % 10)) { // Sweep/Process once every 10 seconds
 			peer().SweepDead();
 			peer().ProcessCommands();
 		}
-		print_status();
+		if (not silent)
+			print_status();
 		sleep(2);
 	}
 	return 0;

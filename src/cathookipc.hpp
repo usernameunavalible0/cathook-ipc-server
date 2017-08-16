@@ -29,6 +29,23 @@ struct user_data_s {
 	int last_score;
 	int total_score;
 	time_t heartbeat;
+	float x;
+	float y;
+	float z;
+	time_t ts_injected;
+	time_t ts_connected;
+	time_t ts_disconnected;
 };
+
+namespace ipc_commands {
+
+constexpr unsigned execute_client_cmd = 1;
+constexpr unsigned set_follow_steamid = 2;
+constexpr unsigned execute_client_cmd_long = 3;
+constexpr unsigned move_to_vector = 4;
+constexpr unsigned stop_moving = 5;
+constexpr unsigned start_moving = 6;
+
+}
 
 #endif /* CATHOOKIPC_HPP_ */

@@ -11,19 +11,6 @@
 #include <string>
 #include <stdio.h>
 
-/*
- *
-CatCommand exec_all("ipc_exec_all", "Execute command (on every peer)", [](const CCommand& args) {
-	std::string command = args.ArgS();
-	ReplaceString(command, " && ", " ; ");
-	if (command.length() >= 63) {
-		peer->SendMessage(0, 0, ipc::commands::execute_client_cmd_long, command.c_str(), command.length() + 1);
-	} else {
-		peer->SendMessage(command.c_str(), 0, ipc::commands::execute_client_cmd, 0, 0);
-	}
-});
- */
-
 void ReplaceString(std::string& input, const std::string& what, const std::string& with_what) {
 	size_t index;
 	index = input.find(what);
@@ -31,17 +18,6 @@ void ReplaceString(std::string& input, const std::string& what, const std::strin
 		input.replace(index, what.size(), with_what);
 		index = input.find(what, index + with_what.size());
 	}
-}
-
-namespace commands {
-
-constexpr unsigned execute_client_cmd = 1;
-constexpr unsigned set_follow_steamid = 2;
-constexpr unsigned execute_client_cmd_long = 3;
-constexpr unsigned move_to_vector = 4;
-constexpr unsigned stop_moving = 5;
-constexpr unsigned start_moving = 6;
-
 }
 
 int main(int argc, const char** argv) {
@@ -59,8 +35,8 @@ int main(int argc, const char** argv) {
 
 	ReplaceString(cmd, " && ", " ; ");
 	if (cmd.length() >= 63) {
-		peer.SendMessage(0, 0, commands::execute_client_cmd_long, cmd.c_str(), cmd.length() + 1);
+		peer.SendMessage(0, 0, ipc_commands::execute_client_cmd_long, cmd.c_str(), cmd.length() + 1);
 	} else {
-		peer.SendMessage(cmd.c_str(), 0, commands::execute_client_cmd, 0, 0);
+		peer.SendMessage(cmd.c_str(), 0, ipc_commands::execute_client_cmd, 0, 0);
 	}
 }
