@@ -105,14 +105,20 @@ int main(int argc, char** argv) {
 	unsigned long tick = 0;
 	peer().Connect();
 	peer().memory->global_data.magic_number = 0x0DEADCA7;
-	//printf("magic number offset: 0x%08x\n", (uintptr_t)&peer().memory->global_data.magic_number - (uintptr_t)peer().memory);
+	bool silent = false;
+	for (int i = 1; i < argc; i++) {
+		if (!strcmp(argv[i], "-s")) {
+			silent = true;
+		}
+	}
 	while (true) {
 		tick++;
 		if (!(tick % 10)) { // Sweep/Process once every 10 seconds
 			peer().SweepDead();
 			peer().ProcessCommands();
 		}
-		print_status();
+		if (not silent)
+			print_status();
 		sleep(2);
 	}
 	return 0;
