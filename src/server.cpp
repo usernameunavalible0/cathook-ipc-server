@@ -82,17 +82,17 @@ void print_status() {
 		if (!peer().memory->peer_data[i].free) {
 			ESC_CUP(2, ypos);
 			const auto& data = peer().memory->peer_user_data[i];
-			printf("%-2u %-5d %-9ld %-21s %s\n", i, peer().memory->peer_data[i].pid, data.friendid, data.server, data.name);
-			if (data.connected && data.good) {
+			printf("%-2u %-5d %-9ld %-21s %s\n", i, peer().memory->peer_data[i].pid, data.friendid, data.ingame.server, data.name);
+			if (data.connected && data.ingame.good) {
 				printf("    %-5s %-9s %-4s   %-5d   %-5d   %-4d/%-4d %u\n",
-						data.life_state ? "Dead" : "Alive",
-						good_class(data.clazz) ? classes[data.clazz].c_str() : classes[0].c_str(),
-						good_team(data.team) ? teams[data.team].c_str() : teams[0].c_str(),
-						data.score, data.total_score, data.health, data.health_max,
+						data.ingame.life_state ? "Dead" : "Alive",
+						good_class(data.ingame.role) ? classes[data.ingame.role].c_str() : classes[0].c_str(),
+						good_team(data.ingame.team) ? teams[data.ingame.team].c_str() : teams[0].c_str(),
+						data.ingame.score, data.accumulated.score, data.ingame.health, data.ingame.health_max,
 						time(nullptr) - data.heartbeat);
 			} else {
 				printf("    %-5s %-9s %-4s   %-5s   %-5d   %-9s %u\n",
-						"N/A", "N/A", "N/A", "N/A", data.total_score, "N/A", time(nullptr) - data.heartbeat);
+						"N/A", "N/A", "N/A", "N/A", data.accumulated.score, "N/A", time(nullptr) - data.heartbeat);
 			}
 			ypos += 2;
 		}
