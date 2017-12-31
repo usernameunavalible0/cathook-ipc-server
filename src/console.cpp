@@ -59,31 +59,45 @@ json query_peer(unsigned id) {
 		return result;
 	}
 
-	result["pid"] = sdata.pid;
-	result["starttime"] = sdata.starttime;
-
-	result["class"] = udata.clazz;
-	result["connected"] = udata.connected;
-	result["friendid"] = udata.friendid;
-	result["good"] = udata.good;
-	result["health"] = udata.health;
-	result["health_max"] = udata.health_max;
-	result["heartbeat"] = udata.heartbeat;
-	result["life_state"] = udata.life_state;
 	result["name"] = std::string(udata.name);
-	result["score"] = udata.score;
-	result["server"] = udata.server;
-	result["team"] = udata.team;
-	result["total_score"] = udata.total_score;
-	result["x"] = udata.x;
-	result["y"] = udata.y;
-	result["z"] = udata.z;
+	result["friendid"] = udata.friendid;
+	result["connected"] = udata.connected;
+	result["heartbeat"] = udata.heartbeat;
 	result["ts_injected"] = udata.ts_injected;
 	result["ts_connected"] = udata.ts_connected;
 	result["ts_disconnected"] = udata.ts_disconnected;
-	result["hits"] = udata.hits;
-	result["shots"] = udata.shots;
-	result["headshots"] = udata.headshots;
+
+	result["accumulated"] = json{};
+	result["accumulated"]["kills"] = udata.accumulated.kills;
+	result["accumulated"]["deaths"] = udata.accumulated.deaths;
+	result["accumulated"]["score"] = udata.accumulated.score;
+	result["accumulated"]["shots"] = udata.accumulated.shots;
+	result["accumulated"]["hits"] = udata.accumulated.hits;
+	result["accumulated"]["headshots"] = udata.accumulated.headshots;
+
+	result["ingame"] = json{};
+	result["ingame"]["good"] = udata.ingame.good;
+	result["ingame"]["kills"] = udata.ingame.kills;
+	result["ingame"]["deaths"] = udata.ingame.deaths;
+	result["ingame"]["score"] = udata.ingame.score;
+	result["ingame"]["shots"] = udata.ingame.shots;
+	result["ingame"]["hits"] = udata.ingame.hits;
+	result["ingame"]["headshots"] = udata.ingame.headshots;
+	result["ingame"]["team"] = udata.ingame.team;
+	result["ingame"]["role"] = udata.ingame.role;
+	result["ingame"]["life_state"] = udata.ingame.life_state;
+	result["ingame"]["health"] = udata.ingame.health;
+	result["ingame"]["health_max"] = udata.ingame.health_max;
+	result["ingame"]["x"] = udata.ingame.x;
+	result["ingame"]["y"] = udata.ingame.y;
+	result["ingame"]["z"] = udata.ingame.z;
+	result["ingame"]["player_count"] = udata.ingame.player_count;
+	result["ingame"]["bot_count"] = udata.ingame.bot_count;
+	result["ingame"]["server"] = std::string(udata.ingame.server);
+	result["ingame"]["mapname"] = std::string(udata.ingame.mapname);
+
+	result["pid"] = sdata.pid;
+	result["starttime"] = sdata.starttime;
 
 	return result;
 }
