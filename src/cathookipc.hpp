@@ -14,30 +14,58 @@ struct server_data_s {
 	unsigned magic_number;
 };
 
-struct user_data_s {
-	char name[32];
-	char server[22];
-	unsigned friendid;
-	bool connected;
-	bool good;
-	int health;
-	int health_max;
-	char life_state;
-	int team;
-	int clazz;
-	int score;
-	int last_score;
-	int total_score;
-	time_t heartbeat;
-	float x;
-	float y;
-	float z;
-	time_t ts_injected;
-	time_t ts_connected;
-	time_t ts_disconnected;
-	int shots;
-	int hits;
-	int headshots;
+struct user_data_s
+{
+    char name[32];
+    unsigned friendid;
+
+    bool connected;
+
+    time_t heartbeat;
+
+    time_t ts_injected;
+    time_t ts_connected;
+    time_t ts_disconnected;
+
+    struct accumulated_t
+	{
+    	int kills;		// TODO
+    	int deaths;		// TODO
+    	int score;
+
+    	int shots;
+    	int hits;
+    	int headshots;
+	} accumulated;
+
+    struct
+	{
+	    bool good;
+
+    	int kills;		// TODO
+    	int deaths;		// TODO
+    	int score;
+
+    	int shots;		// TODO
+    	int hits;		// TODO
+    	int headshots;	// TODO
+
+    	int team;
+    	int role; // class
+    	char life_state;
+        int health;
+        int health_max;
+
+        float x;
+        float y;
+        float z;
+
+        int player_count;
+        int bot_count;
+
+        char server[24];
+        char mapname[32];
+	} ingame;
 };
 
 namespace ipc_commands {
