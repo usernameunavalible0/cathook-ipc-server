@@ -1,5 +1,5 @@
-CXX=$(shell sh -c "which g++-6 || which g++")
-CXXFLAGS=-std=gnu++14 -O3 -g3 -ggdb -Wall -fmessage-length=0 -m32 -DSILENT=1
+CXX=g++
+CXXFLAGS=-std=gnu++14 -O3 -s -Wall -fmessage-length=0 -m32 -DSILENT=1
 SIMPLE_IPC_DIR = $(realpath simple-ipc/include/SimpleIPC)
 INCLUDES=-I$(SIMPLE_IPC_DIR)
 CXXFLAGS += $(INCLUDES)
