@@ -1,4 +1,4 @@
 [submodule "simple-ipc"]
 	path = simple-ipc
-	url = https://github.com/l0fg/simple-ipc
+	url = https://github.com/nullworks/simple-ipc
 	branch = l0fg
