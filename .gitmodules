@@ -1,3 +1,4 @@
 [submodule "simple-ipc"]
 	path = simple-ipc
 	url = https://github.com/nullworks/simple-ipc
+	branch = temp
