@@ -45,7 +45,7 @@ json query_peer(unsigned id) {
 		throw std::runtime_error("not connected to ipc server");
 	}
 
-	if (id >= cat_ipc::max_peers) {
+	if (id > cat_ipc::max_peers) {
 		throw std::out_of_range("peer out of range");
 	}
 
@@ -115,7 +115,7 @@ json exec(const json& args) {
 		throw std::runtime_error("undefined command");
 	}
 	unsigned uid = args["target"].get<unsigned>();
-	if (uid < 0 || uid >= cat_ipc::max_peers) {
+	if (uid < 0 || uid > cat_ipc::max_peers) {
 		throw std::out_of_range("peer out of range");
 	}
 	if (peer->IsPeerDead(uid)) {
@@ -124,9 +124,9 @@ json exec(const json& args) {
 	std::string cmd = args["cmd"];
 	ReplaceString(cmd, " && ", " ; ");
 	if (cmd.length() >= 63) {
-		peer->SendMessage(0, (1 << uid), ipc_commands::execute_client_cmd_long, cmd.c_str(), cmd.length() + 1);
+		peer->SendMessage(0, uid, ipc_commands::execute_client_cmd_long, cmd.c_str(), cmd.length() + 1);
 	} else {
-		peer->SendMessage(cmd.c_str(), (1 << uid), ipc_commands::execute_client_cmd, 0, 0);
+		peer->SendMessage(cmd.c_str(), uid, ipc_commands::execute_client_cmd, 0, 0);
 	}
 	return json {};
 }
@@ -141,9 +141,9 @@ json exec_all(const json& args) {
 	std::string cmd = args["cmd"];
 	ReplaceString(cmd, " && ", " ; ");
 	if (cmd.length() >= 63) {
-		peer->SendMessage(0, 0, ipc_commands::execute_client_cmd_long, cmd.c_str(), cmd.length() + 1);
+		peer->SendMessage(0, -1, ipc_commands::execute_client_cmd_long, cmd.c_str(), cmd.length() + 1);
 	} else {
-		peer->SendMessage(cmd.c_str(), 0, ipc_commands::execute_client_cmd, 0, 0);
+		peer->SendMessage(cmd.c_str(), -1, ipc_commands::execute_client_cmd, 0, 0);
 	}
 	return json {};
 }
@@ -198,7 +198,7 @@ json kill(const json& args) {
 		throw std::runtime_error("undefined pid");
 	}
 	pid_t uid = args["pid"].get<pid_t>();
-	if (uid < 0 || uid >= cat_ipc::max_peers) {
+	if (uid < 0 || uid > cat_ipc::max_peers) {
 		throw std::out_of_range("peer out of range");
 	}
 	if (peer->IsPeerDead(uid)) {
