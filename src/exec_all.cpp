@@ -35,8 +35,8 @@ int main(int argc, const char** argv) {
 
 	ReplaceString(cmd, " && ", " ; ");
 	if (cmd.length() >= 63) {
-		peer.SendMessage(0, 0, ipc_commands::execute_client_cmd_long, cmd.c_str(), cmd.length() + 1);
+		peer.SendMessage(0, -1, ipc_commands::execute_client_cmd_long, cmd.c_str(), cmd.length() + 1);
 	} else {
-		peer.SendMessage(cmd.c_str(), 0, ipc_commands::execute_client_cmd, 0, 0);
+		peer.SendMessage(cmd.c_str(), -1, ipc_commands::execute_client_cmd, 0, 0);
 	}
 }
