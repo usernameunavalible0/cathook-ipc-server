@@ -11,5 +11,5 @@
 int main() {
 	cat_ipc::Peer<server_data_s, user_data_s> object("cathook_followbot_server", false, false, true);
 	object.Connect();
-	pthread_mutex_unlock(&object.memory->mutex);
+	object.memory->mutex.unlock();
 }
