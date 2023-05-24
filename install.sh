@@ -1,7 +1,5 @@
 #!/bin/bash
 
-numcpu=$(grep -c ^processor /proc/cpuinfo)
-
 make clean
-make -j$numcpu
+make -j"$(nproc --all)"
 sudo make install
