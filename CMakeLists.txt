@@ -4,9 +4,10 @@ set(CMAKE_BUILD_TYPE Debug)
 set(CMAKE_CXX_FLAGS "-Wall -fmessage-length=0 -m32 -DSILENT=1")
 set (CMAKE_CXX_FLAGS_RELEASE "-s -Ofast")
 set(CMAKE_CXX_FLAGS_DEBUG "-O0 -g3")
+#set(CMAKE_INSTALL_PREFIX "/opt/cathook/ipc")
 
 project(cathook_ipc_server VERSION 0.0.1)
-add_subdirectory(simple-ipc)
+add_subdirectory(simple-ipc EXCLUDE_FROM_ALL)
 file( GLOB SOURCE_FILES RELATIVE "${CMAKE_SOURCE_DIR}" src/*.cpp )
 foreach( sourcefile ${SOURCE_FILES})
     string(REPLACE ".cpp" "" sourcename ${sourcefile})
@@ -17,4 +18,7 @@ foreach( sourcefile ${SOURCE_FILES})
     add_custom_command(TARGET ${sourcename} POST_BUILD
             COMMAND ${CMAKE_COMMAND} -E copy
             $<TARGET_FILE:${sourcename}> ${CMAKE_SOURCE_DIR}/bin/ )
+    list(APPEND INSTALL_TARGETS ${sourcename})
 endforeach()
+
+install(TARGETS ${INSTALL_TARGETS} DESTINATION /opt/cathook/ipc)
