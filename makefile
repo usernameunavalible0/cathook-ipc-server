@@ -1,5 +1,5 @@
 CXX=g++
-CXXFLAGS=-std=gnu++14 -O3 -s -Wall -fmessage-length=0 -m32 -DSILENT=1
+CXXFLAGS=-std=gnu++20 -Ofast -s -Wall -fmessage-length=0 -m32 -DSILENT=1
 SIMPLE_IPC_DIR = "$(realpath simple-ipc/include/SimpleIPC)"
 INCLUDES=-I$(SIMPLE_IPC_DIR)
 CXXFLAGS += $(INCLUDES)
