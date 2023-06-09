@@ -1,6 +1,6 @@
 #!/bin/bash
 if [ -d "build" ]; then
-  rm -r build
+  rm -rf build
 fi
 mkdir build
 cd build || exit
