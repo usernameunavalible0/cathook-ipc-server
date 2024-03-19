@@ -17,7 +17,7 @@ foreach( sourcefile ${SOURCE_FILES})
     target_link_libraries(${sourcename} pthread rt)
     add_custom_command(TARGET ${sourcename} POST_BUILD
             COMMAND ${CMAKE_COMMAND} -E copy
-            $<TARGET_FILE:${sourcename}> ${CMAKE_SOURCE_DIR}/bin/ )
+            $<TARGET_FILE:${sourcename}> ${CMAKE_SOURCE_DIR} )
     list(APPEND INSTALL_TARGETS ${sourcename})
 endforeach()
 
